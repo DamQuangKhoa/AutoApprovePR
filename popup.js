@@ -51,21 +51,29 @@ function approvePR() {
   
   async function executeWorkflow() {
     try {
-      // Step 2-3: Find and click "Files changed"
-      updateStatus('Looking for "Files changed" tab...');
-      const filesChangedElement = findElementByText('Files changed', ['a']);
+      // Check if we're already on the Files changed tab
+      const currentUrl = window.location.href;
+      const isAlreadyOnFilesTab = currentUrl.includes('/files');
       
-      if (!filesChangedElement) {
-        updateStatus('Error: "Files changed" tab not found');
-        return;
+      if (!isAlreadyOnFilesTab) {
+        // Step 2-3: Find and click "Files changed"
+        updateStatus('Looking for "Files changed" tab...');
+        const filesChangedElement = findElementByText('Files changed', ['a']);
+        
+        if (!filesChangedElement) {
+          updateStatus('Error: "Files changed" tab not found');
+          return;
+        }
+        
+        updateStatus('Clicking "Files changed" tab...');
+        filesChangedElement.click();
+        
+        // Wait for page to load after clicking "Files changed"
+        updateStatus('Waiting for page to load...');
+        await sleep(1000);
+      } else {
+        updateStatus('Already on "Files changed" tab, skipping steps 2-3');
       }
-      
-      updateStatus('Clicking "Files changed" tab...');
-      filesChangedElement.click();
-      
-      // Step 4: Wait for 2 seconds
-      updateStatus('Waiting for page to load...');
-      await sleep(1000);
       
       // Step 5-6: Find and click "Review changes"
       updateStatus('Looking for "Review changes" button...');
@@ -80,7 +88,7 @@ function approvePR() {
       reviewChangesElement.click();
       
       // Wait for the review dialog to open
-      await sleep(1000);
+      await sleep(500);
       
       // Step 7-8: Find and click "Approve"
       updateStatus('Looking for "Approve" option...');
@@ -95,7 +103,6 @@ function approvePR() {
       approveElement.click();
       
       // Step 9: Find and click "Submit review"
-      await sleep(500);
       updateStatus('Looking for "Submit review" button...');
       const submitReviewElement = findElementByText('Submit review', ['button']);
       
